@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.soprasteria.model.ToDoElement;
@@ -30,18 +28,18 @@ public class ToDoElementService {
 	/*
 	 * Will return a ToDo from the id when called by the controller
 	 */
-	public ResponseEntity<Object> getToDoFromId(int idToDo) {
-		return new ResponseEntity<Object>(toDoElementRepository.findById(idToDo), HttpStatus.OK);
+	public Optional<ToDoElement> getToDoFromId(int idToDo) {
+		return toDoElementRepository.findById(idToDo);
 	}
 	
 	/*
 	 * Will return the new ToDoElement to create when called from the controller
 	 */
-	public ResponseEntity<Object>createNewToDo(String textToDo) {
+	public ToDoElement createNewToDo(String textToDo) {
 		ToDoElement newToDo = new ToDoElement();
 		newToDo.setCompleted(false);
 		newToDo.setElement(textToDo);
-		return new ResponseEntity<Object> (toDoElementRepository.save(newToDo), HttpStatus.OK);
+		return toDoElementRepository.save(newToDo);
 	}
 	
 	/*
@@ -54,24 +52,25 @@ public class ToDoElementService {
 	/*
 	 * Will update the text of the ToDo when called by the controller
 	 */
-	public ResponseEntity<Object> updateToDoElementText(int idToDo,String newText) {
+	public ToDoElement updateToDoElementText(int idToDo,String newText) {
 		Optional<ToDoElement> toDoToUpdate = toDoElementRepository.findById(idToDo);
 		if(toDoToUpdate.isEmpty()) {
-			return new ResponseEntity<Object>(null, HttpStatus.NOT_FOUND);
+			return null;
 		}
 		toDoToUpdate.get().setElement(newText);
-		return new ResponseEntity<Object> (toDoElementRepository.save(toDoToUpdate.get()), HttpStatus.OK);
+		return toDoToUpdate.get();
 	}
 	
 	/*
 	 * Will update the completed boolean of the ToDo when called by the controller
 	 */
-	public ResponseEntity<Object> updateToDoElementCompleted(int idToDo, boolean changed) {
+	public ToDoElement updateToDoElementCompleted(int idToDo, boolean changed) {
 		Optional<ToDoElement> toDoToUpdate = toDoElementRepository.findById(idToDo);
 		if(toDoToUpdate.isEmpty()) {
-			return new ResponseEntity<Object>(null, HttpStatus.NOT_FOUND);
+			return null;
 		}
 		toDoToUpdate.get().setCompleted(changed);
-		return new ResponseEntity<Object> (toDoElementRepository.save(toDoToUpdate.get()), HttpStatus.OK);
+		toDoElementRepository.save(toDoToUpdate.get());
+		return toDoToUpdate.get();
 	}
 }

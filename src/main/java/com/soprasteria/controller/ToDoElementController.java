@@ -3,6 +3,7 @@ package com.soprasteria.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,6 +21,8 @@ import com.soprasteria.parameters.UpdateChangedToDoParam;
 import com.soprasteria.parameters.UpdateTextToDoParam;
 import com.soprasteria.services.ToDoElementService;
 
+import java.util.Optional;
+
 @CrossOrigin
 @RestController
 @RequestMapping("/todo")
@@ -35,12 +38,18 @@ public class ToDoElementController {
 	
 	@GetMapping("/todoelement/{idtodo}")
 	public ResponseEntity<Object> getElementFromId(@PathVariable(value = "idtodo") int idToDo) {
-		return toDoElementService.getToDoFromId(idToDo);
+		Optional<ToDoElement> toDoElement = toDoElementService.getToDoFromId(idToDo);
+		if(toDoElement.isEmpty()) {
+			return new ResponseEntity<Object> (null,HttpStatus.BAD_REQUEST);
+		}
+		else {
+			return new ResponseEntity<Object> (toDoElement.get(),HttpStatus.OK);
+		}
 	}
 	
 	@PostMapping("/addtodo")
 	public ResponseEntity<Object> addToDo (@RequestBody AddToDoParam atdp){
-		return toDoElementService.createNewToDo(atdp.getText());
+		return new ResponseEntity<Object> (toDoElementService.createNewToDo(atdp.getText()), HttpStatus.OK);
 	}
 	
 	@DeleteMapping("/todoremove/{idtodo}")
@@ -50,7 +59,11 @@ public class ToDoElementController {
 	
 	@PutMapping("/todotoupdatetext") 
 	public ResponseEntity<Object> updateToDoText (@RequestBody UpdateTextToDoParam uttdp){
-		return toDoElementService.updateToDoElementText(uttdp.getIdToDo(), uttdp.getTextModified());
+		ToDoElement toDoElement = toDoElementService.updateToDoElementText(uttdp.getIdToDo(), uttdp.getTextModified());
+		if(toDoElement == null) {
+			return new ResponseEntity<Object> (null, HttpStatus.BAD_REQUEST);
+		}
+		return new ResponseEntity<Object> (toDoElement, HttpStatus.OK);
 	}
 	
 	@PutMapping("/todotoupdatechanged") 
@@ -62,7 +75,12 @@ public class ToDoElementController {
 		else {
 			state = true;
 		}
-		return toDoElementService.updateToDoElementCompleted(uctdp.getIdToDo(),state);
+		ToDoElement toDoElement = toDoElementService.updateToDoElementCompleted(uctdp.getIdToDo(),state);
+		if(toDoElement == null) {
+			return new ResponseEntity<Object>(null, HttpStatus.BAD_REQUEST);
+
+		}
+		return new ResponseEntity<Object>(toDoElement, HttpStatus.OK);
 	}
 	
 }
